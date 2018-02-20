@@ -1,4 +1,4 @@
-FROM blacklabelops/java:openjdk8
+FROM anapsix/alpine-java:8_jdk-dcevm_unlimited
 MAINTAINER Steffen Bleul <sbl@blacklabelops.com>
 
 ARG CROWD_VERSION=3.1.2
@@ -12,6 +12,12 @@ ENV CROWD_HOME=/var/atlassian/crowd \
     CROWD_PROXY_PORT= \
     CROWD_PROXY_SCHEME= \
     KEYSTORE=$JAVA_HOME/jre/lib/security/cacerts
+
+RUN echo http://mirror.yandex.ru/mirrors/alpine/v3.6/main > /etc/apk/repositories; \
+    echo http://mirror.yandex.ru/mirrors/alpine/v3.6/community >> /etc/apk/repositories
+
+RUN apk update \
+ && apk add --no-cache 
 
 RUN export MYSQL_DRIVER_VERSION=5.1.44 && \
     export CONTAINER_USER=crowd &&  \
@@ -46,14 +52,14 @@ RUN export MYSQL_DRIVER_VERSION=5.1.44 && \
     mkdir -p ${CROWD_INSTALL}/apache-tomcat/conf/Catalina/localhost && \
     echo "crowd.home=${CROWD_HOME}" > ${CROWD_INSTALL}/crowd-webapp/WEB-INF/classes/crowd-init.properties && \
     # Install database drivers
-    rm -f \
-      ${CROWD_INSTALL}/apache-tomcat/lib/mysql-connector-java*.jar &&  \
-    wget -O /tmp/mysql-connector-java-${MYSQL_DRIVER_VERSION}.tar.gz \
-      http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-${MYSQL_DRIVER_VERSION}.tar.gz && \
-    tar xzf /tmp/mysql-connector-java-${MYSQL_DRIVER_VERSION}.tar.gz \
-      -C /tmp && \
-    cp /tmp/mysql-connector-java-${MYSQL_DRIVER_VERSION}/mysql-connector-java-${MYSQL_DRIVER_VERSION}-bin.jar \
-      ${CROWD_INSTALL}/apache-tomcat/lib/mysql-connector-java-${MYSQL_DRIVER_VERSION}-bin.jar  &&  \
+#    rm -f \
+#      ${CROWD_INSTALL}/apache-tomcat/lib/mysql-connector-java*.jar &&  \
+#    wget -O /tmp/mysql-connector-java-${MYSQL_DRIVER_VERSION}.tar.gz \
+#      http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-${MYSQL_DRIVER_VERSION}.tar.gz && \
+#    tar xzf /tmp/mysql-connector-java-${MYSQL_DRIVER_VERSION}.tar.gz \
+#      -C /tmp && \
+#    cp /tmp/mysql-connector-java-${MYSQL_DRIVER_VERSION}/mysql-connector-java-${MYSQL_DRIVER_VERSION}-bin.jar \
+#      ${CROWD_INSTALL}/apache-tomcat/lib/mysql-connector-java-${MYSQL_DRIVER_VERSION}-bin.jar  &&  \
     # Adjusting directories
     mv ${CROWD_INSTALL}/apache-tomcat/webapps/ROOT /opt/crowd/splash-webapp && \
     mv ${CROWD_INSTALL}/apache-tomcat/conf/Catalina/localhost /opt/crowd/webapps && \

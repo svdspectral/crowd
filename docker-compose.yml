@@ -32,6 +32,8 @@ services:
       - crowdnet
     volumes:
       - postgresqldata:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
     environment:
         - 'POSTGRES_DB=crowddb'
         - 'POSTGRES_USER=crowddb'
